@@ -115,6 +115,22 @@ def _tab_config():
 
     st.markdown("---")
 
+    # Response time SLA
+    st.markdown("#### Response Time SLA")
+    st.caption("Define service level agreements for ticket response times.")
+
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        p0_sla = st.selectbox("P0 target (hours)", [0.5, 1, 2, 4], index=1)
+    with col2:
+        p1_sla = st.selectbox("P1 target (hours)", [1, 2, 4, 8], index=1)
+    with col3:
+        p3_sla = st.selectbox("P3 target (hours)", [4, 8, 24, 48], index=2)
+
+    st.caption(f"P0: {p0_sla}h · P1: {p1_sla}h · P3: {p3_sla}h")
+
+    st.markdown("---")
+
     # Category management
     st.markdown("#### Categories")
     categories = ["Billing", "Bug Report", "Integration", "Onboarding", "Account", "Feature Request", "Other"]

@@ -143,8 +143,33 @@ def _render_left_panel(ticket: dict):
         </div>
         """, unsafe_allow_html=True)
 
+    # ── Quick Actions ───────────────────────────────────────────────────────
+    st.markdown("**Quick Actions**")
+    col_act1, col_act2, col_act3 = st.columns(3)
+    with col_act1:
+        if st.button("🚀 Start Work", use_container_width=True, key=f"start_{ticket['id']}"):
+            db.update_ticket(ticket["id"], status="IN_PROGRESS")
+            db.log_audit(ticket["id"], "Agent", "status_change", ticket.get("status"), "IN_PROGRESS")
+            st.success("Ticket in progress!")
+            st.rerun()
+    with col_act2:
+        if st.button("✅ Resolve", use_container_width=True, key=f"resolve_{ticket['id']}"):
+            from datetime import datetime, timezone
+            db.update_ticket(ticket["id"], status="RESOLVED", resolved_at=datetime.now(timezone.utc).isoformat())
+            db.log_audit(ticket["id"], "Agent", "status_change", ticket.get("status"), "RESOLVED")
+            st.success("Ticket resolved!")
+            st.rerun()
+    with col_act3:
+        if st.button("⚠️ Escalate", use_container_width=True, key=f"esc_{ticket['id']}"):
+            db.update_ticket(ticket["id"], status="ESCALATED")
+            db.log_audit(ticket["id"], "Agent", "status_change", ticket.get("status"), "ESCALATED")
+            st.success("Ticket escalated!")
+            st.rerun()
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     # Status + assignment controls
-    st.markdown("**Update ticket**")
+    st.markdown("**Update Details**")
     col1, col2 = st.columns(2)
     with col1:
         new_status = st.selectbox(

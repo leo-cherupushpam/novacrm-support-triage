@@ -121,6 +121,23 @@ def render():
         st.info("No tickets match your filters.")
         return
 
+    # ── Quick Stats ──────────────────────────────────────────────────────────
+    col1, col2, col3, col4 = st.columns(4)
+    with col1:
+        urgent = len([t for t in tickets if _urgency(t) in ["P0", "P1"]])
+        col1.metric("Urgent (P0+P1)", urgent, delta=None)
+    with col2:
+        open_count = len([t for t in tickets if t.get("status") == "OPEN"])
+        col2.metric("Unassigned", open_count, delta=None)
+    with col3:
+        angry = len([t for t in tickets if _sentiment(t) == "ANGRY"])
+        col3.metric("Angry Sentiment", angry, delta=None)
+    with col4:
+        avg_conf = sum(_confidence(t) for t in tickets) / len(tickets) if tickets else 0
+        col4.metric("Avg AI Confidence", f"{avg_conf*100:.0f}%", delta=None)
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
     # ── Ticket table ─────────────────────────────────────────────────────────
     _render_ticket_table(tickets)
 

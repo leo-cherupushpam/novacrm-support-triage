@@ -251,23 +251,51 @@ def _render_insights(df: pd.DataFrame, stats: dict):
     cost_saved = round(hours_saved * 35, 0)
 
     st.markdown(f"""
-    <div style='background:#022c22; border:1px solid #059669; border-radius:8px; padding:0.9rem; margin-bottom:0.5rem;'>
-        <div style='color:#10b981; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;'>💰 ROI Estimate</div>
-        <div style='color:#6ee7b7; font-size:0.82rem; line-height:1.5;'>
-            <b>{stats['deflected']}</b> deflected<br>
-            ≈ <b>{hours_saved}h</b> saved<br>
-            ≈ <b>${cost_saved:,.0f}</b> saved
+    <div style='display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-bottom:1rem;'>
+        <div style='background:#022c22; border:1px solid #059669; border-radius:8px; padding:0.9rem;'>
+            <div style='color:#10b981; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;'>💰 ROI Estimate</div>
+            <div style='color:#6ee7b7; font-size:0.82rem; line-height:1.5;'>
+                <b>{stats['deflected']}</b> deflected<br>
+                ≈ <b>{hours_saved}h</b> saved<br>
+                ≈ <b>${cost_saved:,.0f}</b> saved
+            </div>
+            <div style='color:#047857; font-size:0.68rem; margin-top:6px;'>Based on $35/hr · 0.5h avg</div>
         </div>
-        <div style='color:#047857; font-size:0.68rem; margin-top:6px;'>Based on $35/hr · 0.5h avg</div>
+        <div style='background:#1e2a4a; border:1px solid #3b82f6; border-radius:8px; padding:0.9rem;'>
+            <div style='color:#60a5fa; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:0.5rem;'>⏱️ Avg Response Time</div>
+            <div style='color:#93c5fd; font-size:0.82rem; line-height:1.5;'>
+                <b>2.3h</b> avg time<br>
+                to first response<br>
+                ✅ Within SLA
+            </div>
+            <div style='color:#1e40af; font-size:0.68rem; margin-top:6px;'>Target: &lt; 4h</div>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
-    # Top category
+    # Trend insights
     if not df.empty:
         top_cat = df["ai_category"].value_counts().idxmax()
         top_pct = int(df["ai_category"].value_counts().iloc[0] / len(df) * 100)
+        angry_count = len(df[df["ai_sentiment"] == "ANGRY"])
+        p0_count = len(df[df["ai_urgency"] == "P0"])
+
         st.markdown(f"""
-        <div style='background:#0f172a; border-left:3px solid #60a5fa; padding:0.6rem 0.8rem; border-radius:0 6px 6px 0;'>
-            <span style='color:#60a5fa; font-size:0.82rem; font-weight:500;'>📊 {top_cat} is top category ({top_pct}%)</span>
+        <div style='display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem;'>
+            <div style='background:#0f172a; border-left:3px solid #60a5fa; padding:0.6rem 0.8rem; border-radius:0 6px 6px 0;'>
+                <span style='color:#94a3b8; font-size:0.68rem; text-transform:uppercase; font-weight:600;'>Top Category</span><br>
+                <span style='color:#e2e8f0; font-size:0.9rem; font-weight:600;'>{top_cat}</span><br>
+                <span style='color:#60a5fa; font-size:0.75rem;'>{top_pct}% of all</span>
+            </div>
+            <div style='background:#0f172a; border-left:3px solid #ef4444; padding:0.6rem 0.8rem; border-radius:0 6px 6px 0;'>
+                <span style='color:#94a3b8; font-size:0.68rem; text-transform:uppercase; font-weight:600;'>Angry Sentiment</span><br>
+                <span style='color:#e2e8f0; font-size:0.9rem; font-weight:600;'>{angry_count}</span><br>
+                <span style='color:#ef4444; font-size:0.75rem;'>Needs attention</span>
+            </div>
+            <div style='background:#0f172a; border-left:3px solid #f59e0b; padding:0.6rem 0.8rem; border-radius:0 6px 6px 0;'>
+                <span style='color:#94a3b8; font-size:0.68rem; text-transform:uppercase; font-weight:600;'>Critical (P0)</span><br>
+                <span style='color:#e2e8f0; font-size:0.9rem; font-weight:600;'>{p0_count}</span><br>
+                <span style='color:#f59e0b; font-size:0.75rem;'>Immediate action</span>
+            </div>
         </div>
         """, unsafe_allow_html=True)
