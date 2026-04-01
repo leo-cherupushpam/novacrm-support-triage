@@ -22,6 +22,11 @@ st.markdown("""
     background: linear-gradient(180deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);
     border-right: 1px solid #334155;
 }
+
+/* Hide Streamlit's default page selector dropdown */
+[data-testid="stSidebar"] > div:first-child > div:first-child {
+    display: none !important;
+}
 [data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 [data-testid="stSidebar"] .stRadio label { color: #cbd5e1 !important; }
 [data-testid="stSidebar"] hr { border-color: #334155 !important; }
