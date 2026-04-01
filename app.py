@@ -125,6 +125,18 @@ st.markdown("""
 # ── Init DB ───────────────────────────────────────────────────────────────────
 db.init_db()
 
+# Auto-seed on first load (empty database)
+if "db_seeded" not in st.session_state:
+    if db.get_stats()["total"] == 0:
+        try:
+            import seed_data
+            seed_data.seed()
+            st.session_state["db_seeded"] = True
+        except Exception as e:
+            st.error(f"Failed to seed database: {e}")
+    else:
+        st.session_state["db_seeded"] = True
+
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
