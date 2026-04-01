@@ -192,41 +192,24 @@ def _chart_volume_trend(df: pd.DataFrame):
     daily["defl_rate"] = (daily["deflected"] / daily["count"] * 100).round(1)
     daily["date"] = pd.to_datetime(daily["date"])
 
+    # Simple two-metric chart: bar for volume, line for deflection rate
     fig = go.Figure()
     fig.add_trace(go.Bar(
         x=daily["date"], y=daily["count"],
         name="Total Tickets",
         marker_color="#3b82f6",
-        opacity=0.8,
-        yaxis="y1",
+        opacity=0.7,
     ))
     fig.add_trace(go.Scatter(
         x=daily["date"], y=daily["defl_rate"],
         name="Deflection Rate %",
-        yaxis="y2",
-        line=dict(color="#10b981", width=2),
+        line=dict(color="#10b981", width=3),
         mode="lines+markers",
-        marker=dict(size=5),
+        marker=dict(size=6),
     ))
+
     layout = _plotly_layout(height=300)
-    layout.update(
-        barmode="relative",
-        yaxis=dict(
-            title="Tickets",
-            gridcolor=BORDER,
-            linecolor=BORDER,
-        ),
-        yaxis2=dict(
-            title="Deflection %",
-            overlaying="y",
-            side="right",
-            gridcolor="transparent",
-            range=[0, 100],
-            tickfont=dict(color="#10b981"),
-            linecolor="transparent",
-        ),
-        hovermode="x unified",
-    )
+    layout.update(barmode="overlay")
     fig.update_layout(**layout)
     st.plotly_chart(fig, use_container_width=True)
 
