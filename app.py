@@ -108,18 +108,59 @@ st.markdown("""
 /* Dividers */
 .section-divider { border: none; border-top: 1px solid #334155; margin: 1rem 0; }
 
+/* Typography improvements */
+h1 { font-size: 2rem !important; font-weight: 800 !important; letter-spacing: -0.02em !important; }
+h2 { font-size: 1.4rem !important; font-weight: 700 !important; margin-top: 1.5rem !important; }
+h3 { font-size: 1rem !important; font-weight: 600 !important; }
+
 /* Streamlit button overrides */
 .stButton button {
     background: #1e40af; color: white; border: none;
-    border-radius: 6px; font-weight: 600;
+    border-radius: 6px; font-weight: 600; transition: all 0.2s ease;
 }
-.stButton button:hover { background: #1d4ed8; }
+.stButton button:hover {
+    background: #1d4ed8; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29, 78, 216, 0.3);
+}
+.stButton button:active { transform: translateY(0); }
+
+/* Primary button variant */
+.stButton button[kind="primary"] {
+    background: linear-gradient(135deg, #3b82f6, #1e40af);
+}
+.stButton button[kind="primary"]:hover {
+    background: linear-gradient(135deg, #60a5fa, #1d4ed8);
+}
 
 /* Tables */
-[data-testid="stDataFrame"] { border-radius: 8px; overflow: hidden; }
+[data-testid="stDataFrame"] {
+    border-radius: 8px; overflow: hidden;
+    background: #0f172a !important;
+}
+[data-testid="stDataFrame"] [data-testid="stDataFrameCellHeader"] {
+    background: #1e293b !important;
+    color: #e2e8f0 !important;
+}
+
+/* Expanders */
+.streamlit-expanderHeader {
+    font-weight: 600 !important;
+    color: #e2e8f0 !important;
+}
+.streamlit-expanderHeader:hover {
+    background-color: #1e293b !important;
+}
 
 /* Dark selectbox / multiselect */
 .stSelectbox label, .stMultiSelect label { color: #94a3b8 !important; font-size: 0.8rem !important; }
+.stSelectbox, .stMultiSelect { color: #e2e8f0 !important; }
+
+/* Metric cards */
+[data-testid="metric-container"] {
+    background: #1e293b;
+    border: 1px solid #334155;
+    border-radius: 8px;
+    padding: 1rem !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
