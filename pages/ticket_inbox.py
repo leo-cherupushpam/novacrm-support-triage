@@ -163,28 +163,10 @@ def _run_ai_triage():
 
 
 def _render_ticket_table(tickets: list[dict]):
-    """Render tickets as a styled HTML table with click-to-select."""
+    """Render tickets as a native Streamlit dataframe."""
 
-    # Build header
-    header = """
-    <table style='width:100%; border-collapse:collapse; font-size:0.82rem;'>
-    <thead>
-    <tr style='border-bottom:1px solid #334155;'>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600; white-space:nowrap;'>ID</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Subject</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Customer</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Category</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Urgency</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Mood</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Confidence</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Status</th>
-        <th style='padding:8px 12px; text-align:left; color:#64748b; font-weight:600;'>Age</th>
-    </tr>
-    </thead>
-    <tbody>
-    """
-
-    rows = []
+    # Build dataframe
+    rows_data = []
     for t in tickets:
         urg  = _urgency(t)
         cat  = _category(t)
@@ -193,37 +175,29 @@ def _render_ticket_table(tickets: list[dict]):
         status = t.get("status", "OPEN")
 
         conf_pct = f"{conf*100:.0f}%" if conf > 0 else "—"
-        conf_color = "#10b981" if conf >= 0.8 else "#f59e0b" if conf >= 0.6 else "#94a3b8"
-
         subj = t["subject"]
         if len(subj) > 55:
             subj = subj[:55] + "…"
 
-        assigned = t.get("assigned_to") or ""
-        assigned_html = f"<div style='font-size:0.68rem; color:#64748b;'>{assigned}</div>" if assigned else ""
+        rows_data.append({
+            "ID": t["id"],
+            "Subject": subj,
+            "Customer": t.get("customer_name", ""),
+            "Category": cat,
+            "Urgency": urg,
+            "Mood": SENTIMENT_ICON.get(sent, "😐"),
+            "Confidence": conf_pct,
+            "Status": status,
+            "Age": _age(t.get("created_at", "")),
+        })
 
-        rows.append(f"""
-        <tr style='border-bottom:1px solid #1e293b; cursor:pointer;' onmouseover="this.style.background='#1e293b'" onmouseout="this.style.background='transparent'">
-            <td style='padding:10px 12px; color:#475569; font-family:monospace;'>#{t['id']}</td>
-            <td style='padding:10px 12px;'>
-                <div style='color:#e2e8f0; font-weight:500;'>{subj}</div>
-                {assigned_html}
-            </td>
-            <td style='padding:10px 12px;'>
-                <div style='color:#cbd5e1;'>{t.get('customer_name','')}</div>
-                <div style='font-size:0.68rem; color:#64748b;'>{t.get('customer_email','')[:28]}…</div>
-            </td>
-            <td style='padding:10px 12px;'>{_cat_badge(cat)}</td>
-            <td style='padding:10px 12px;'>{URGENCY_BADGE.get(urg, urg)}</td>
-            <td style='padding:10px 12px; text-align:center; font-size:1.1rem;'>{SENTIMENT_ICON.get(sent,'😐')}</td>
-            <td style='padding:10px 12px; color:{conf_color}; font-weight:600;'>{conf_pct}</td>
-            <td style='padding:10px 12px;'>{STATUS_BADGE.get(status, status)}</td>
-            <td style='padding:10px 12px; color:#64748b; white-space:nowrap;'>{_age(t.get('created_at',''))}</td>
-        </tr>
-        """)
-
-    html = header + "\n".join(rows) + "</tbody></table>"
-    st.markdown(html, unsafe_allow_html=True)
+    df = pd.DataFrame(rows_data)
+    st.dataframe(
+        df,
+        use_container_width=True,
+        hide_index=True,
+        height=max(300, min(len(rows_data) * 35 + 40, 600)),
+    )
 
     st.markdown("<br>", unsafe_allow_html=True)
 
