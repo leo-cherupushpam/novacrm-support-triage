@@ -161,6 +161,42 @@ h3 { font-size: 1rem !important; font-weight: 600 !important; }
     border-radius: 8px;
     padding: 1rem !important;
 }
+
+/* Sidebar radio buttons (navigation) */
+[data-testid="stSidebar"] .stRadio > label {
+    padding: 0 !important;
+}
+[data-testid="stSidebar"] .stRadio > div {
+    gap: 0.5rem !important;
+}
+[data-testid="stSidebar"] .stRadio > div > label {
+    background: transparent;
+    padding: 0.6rem 0.8rem !important;
+    margin-bottom: 0.4rem;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    color: #cbd5e1 !important;
+    font-weight: 500;
+    cursor: pointer;
+}
+[data-testid="stSidebar"] .stRadio > div > label:hover {
+    background: #1e293b;
+    border-color: #475569;
+}
+[data-testid="stSidebar"] .stRadio > div > label[aria-checked="true"] {
+    background: #1e3a8a;
+    border-color: #3b82f6;
+    color: #93c5fd !important;
+    font-weight: 600;
+    box-shadow: inset 0 0 0 1px #3b82f6;
+}
+
+/* Divider styling */
+[data-testid="stSidebar"] hr {
+    margin: 1rem 0 !important;
+    border-color: #1e293b !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
@@ -182,51 +218,92 @@ if "db_seeded" not in st.session_state:
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
+    # Header
     st.markdown("""
-    <div style='padding: 0.5rem 0 1.25rem 0;'>
-        <div style='font-size:1.4rem; font-weight:800; color:#f1f5f9; letter-spacing:-0.02em;'>
+    <div style='padding: 1rem 0 1.5rem 0;'>
+        <div style='font-size:1.6rem; font-weight:800; color:#f1f5f9; letter-spacing:-0.03em; margin-bottom:0.25rem;'>
             🎯 NovaCRM
         </div>
-        <div style='font-size:0.75rem; color:#64748b; font-weight:500; margin-top:2px;'>
+        <div style='font-size:0.8rem; color:#60a5fa; font-weight:600;'>
             AI Support Triage
         </div>
     </div>
     """, unsafe_allow_html=True)
 
-    st.markdown("---")
-    st.markdown("<div style='font-size:0.68rem; color:#64748b; text-transform:uppercase; letter-spacing:0.1em; padding-bottom:0.5rem;'>Navigation</div>", unsafe_allow_html=True)
+    st.divider()
+
+    # Navigation with icons
+    st.markdown("<div style='font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.12em; font-weight:700; margin-bottom:1rem;'>📍 Navigation</div>", unsafe_allow_html=True)
+
+    nav_pages = {
+        "📥 Ticket Inbox": "Ticket Inbox",
+        "🔍 Ticket Detail": "Ticket Detail",
+        "📊 Analytics": "Analytics",
+        "⚙️ Settings": "Settings",
+    }
 
     page = st.radio(
         "Navigate",
-        ["Ticket Inbox", "Ticket Detail", "Analytics", "Settings"],
+        list(nav_pages.values()),
+        format_func=lambda x: [k for k, v in nav_pages.items() if v == x][0],
         label_visibility="collapsed",
     )
 
-    st.markdown("---")
+    st.divider()
+
+    # Live Stats Section
     stats = db.get_stats()
+    st.markdown("<div style='font-size:0.65rem; color:#94a3b8; text-transform:uppercase; letter-spacing:0.12em; font-weight:700; margin-bottom:0.8rem;'>📈 Live Metrics</div>", unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div style='font-size:0.68rem; color:#64748b; text-transform:uppercase; letter-spacing:0.1em; padding-bottom:0.5rem;'>Live Stats</div>
-    <div style='display:flex; flex-direction:column; gap:0.4rem;'>
-        <div style='display:flex; justify-content:space-between; font-size:0.8rem;'>
-            <span style='color:#94a3b8;'>Total tickets</span>
-            <span style='color:#f1f5f9; font-weight:600;'>{stats['total']}</span>
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        <div style='background:#1a2a3a; border:1px solid #334155; border-radius:8px; padding:0.75rem; text-align:center;'>
+            <div style='font-size:0.65rem; color:#94a3b8; margin-bottom:0.3rem;'>Total</div>
+            <div style='font-size:1.4rem; font-weight:800; color:#60a5fa;'>{stats['total']}</div>
+            <div style='font-size:0.6rem; color:#64748b;'>tickets</div>
         </div>
-        <div style='display:flex; justify-content:space-between; font-size:0.8rem;'>
-            <span style='color:#94a3b8;'>Deflection rate</span>
-            <span style='color:#10b981; font-weight:600;'>{stats['deflection_rate']}%</span>
-        </div>
-        <div style='display:flex; justify-content:space-between; font-size:0.8rem;'>
-            <span style='color:#94a3b8;'>P0 open</span>
-            <span style='color:{"#ef4444" if stats["p0_open"] > 0 else "#10b981"}; font-weight:600;'>{stats['p0_open']}</span>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+        """, unsafe_allow_html=True)
 
-    st.markdown("---")
+    with col2:
+        color = "#10b981" if stats["deflection_rate"] >= 15 else "#f59e0b"
+        st.markdown(f"""
+        <div style='background:#1a2a3a; border:1px solid #334155; border-radius:8px; padding:0.75rem; text-align:center;'>
+            <div style='font-size:0.65rem; color:#94a3b8; margin-bottom:0.3rem;'>Deflection</div>
+            <div style='font-size:1.4rem; font-weight:800; color:{color};'>{stats['deflection_rate']}%</div>
+            <div style='font-size:0.6rem; color:#64748b;'>rate</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.markdown("")
+
+    col3, col4 = st.columns(2)
+    with col3:
+        st.markdown(f"""
+        <div style='background:#1a2a3a; border:1px solid #334155; border-radius:8px; padding:0.75rem; text-align:center;'>
+            <div style='font-size:0.65rem; color:#94a3b8; margin-bottom:0.3rem;'>Open</div>
+            <div style='font-size:1.4rem; font-weight:800; color:#3b82f6;'>{stats['open']}</div>
+            <div style='font-size:0.6rem; color:#64748b;'>awaiting</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col4:
+        p0_color = "#ef4444" if stats["p0_open"] > 0 else "#10b981"
+        st.markdown(f"""
+        <div style='background:#1a2a3a; border:1px solid #334155; border-radius:8px; padding:0.75rem; text-align:center;'>
+            <div style='font-size:0.65rem; color:#94a3b8; margin-bottom:0.3rem;'>Critical</div>
+            <div style='font-size:1.4rem; font-weight:800; color:{p0_color};'>{stats['p0_open']}</div>
+            <div style='font-size:0.6rem; color:#64748b;'>P0 open</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    st.divider()
+
+    # Footer
     st.markdown("""
-    <div style='font-size:0.68rem; color:#475569; text-align:center; padding-top:0.5rem;'>
-        Powered by GPT-4o · NovaCRM v2.1
+    <div style='font-size:0.65rem; color:#64748b; text-align:center; padding-top:0.5rem;'>
+        <div style='margin-bottom:0.25rem;'>Powered by GPT-5</div>
+        <div style='font-weight:600; color:#60a5fa;'>NovaCRM v2.2</div>
     </div>
     """, unsafe_allow_html=True)
 
