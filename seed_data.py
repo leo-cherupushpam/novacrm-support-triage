@@ -528,6 +528,55 @@ def _seed_tickets() -> None:
          "Company name rebrand update needed across account.", 0.86),
     ]
 
+    # ── UNCLASSIFIED TICKETS FOR AI TRIAGE DEMO ────────────────────────────
+    # These tickets have no AI classification yet - perfect for testing "Run AI Triage"
+    unclassified_tickets = [
+        ("Our integration with Salesforce keeps disconnecting", None, None, None, "OPEN", None,
+         "integrations@salesforceuser.com", "Rebecca Wong",
+         "We set up the Salesforce integration last week and it was working fine. "
+         "Now we're getting sync errors every few hours. The error says 'Token expired'. "
+         "This is blocking our sales team's workflow."),
+
+        ("Can you help with custom field mapping for our import?", None, None, None, "OPEN", None,
+         "ops@customfieldco.com", "Michael Chen",
+         "I'm trying to import 10,000 contacts from our old system. "
+         "The old system has some custom fields that don't match NovaCRM's standard fields. "
+         "Can I map custom fields during import or do I need to create them first?"),
+
+        ("We're getting HTTP 429 errors from the API", None, None, None, "OPEN", None,
+         "engineering@apiuser.io", "Elena Rodriguez",
+         "Our integration is hitting rate limits. We're getting HTTP 429 (Too Many Requests) errors. "
+         "What's the rate limit per minute? Can it be increased for our use case?"),
+
+        ("Dashboard widgets disappeared after update", None, None, None, "OPEN", None,
+         "analyst@dashboard.co", "David Lee",
+         "After the latest app update, 3 of our custom dashboard widgets are gone. "
+         "We had KPI metrics configured that took hours to set up. "
+         "Is there a way to restore them?"),
+
+        ("Email campaign not sending to contacts in a specific segment", None, None, None, "OPEN", None,
+         "marketing@segmentmail.com", "Jennifer Martinez",
+         "We created an email campaign and targeted a segment of 500 contacts. "
+         "The campaign shows as 'Sent' but our marketing team says they received 0 opens. "
+         "We checked the segment manually and the contacts are definitely there."),
+
+        ("Two-factor authentication not working on mobile", None, None, None, "OPEN", None,
+         "mobile@2fauser.com", "Samuel Thompson",
+         "I have 2FA enabled. It works on desktop but when I try to log in on my iPhone, "
+         "the authenticator app code doesn't work. I get 'Invalid OTP' error every time."),
+
+        ("Can we get historical data from before our migration?", None, None, None, "OPEN", None,
+         "data@historical.com", "Patricia Johnson",
+         "We migrated to NovaCRM 3 months ago. Our previous CRM data (contacts from the past 2 years) "
+         "is archived but we need to run reports on it. Can you help us recover or import that data?"),
+
+        ("Your pricing page shows a feature we don't have access to", None, None, None, "OPEN", None,
+         "sales@pricingissue.com", "William Anderson",
+         "We're on the Professional plan. Your pricing page says Professional includes 'Advanced Reporting'. "
+         "But we don't see that feature in our account. Are we supposed to enable it somewhere?"),
+    ]
+
+    # Create pre-classified tickets
     for (subject, category, urgency, sentiment, status, assigned_to,
          customer_email, customer_name, body, ai_summary, ai_confidence) in tickets:
         days_ago = random.uniform(0.1, 28)
@@ -537,6 +586,21 @@ def _seed_tickets() -> None:
             status=status, category=category, urgency=urgency, sentiment=sentiment,
             ai_category=category, ai_urgency=urgency, ai_sentiment=sentiment,
             ai_confidence=ai_confidence, ai_summary=ai_summary,
+            assigned_to=assigned_to,
+            created_at=_ago(days_ago),
+        )
+
+    # Create unclassified tickets (for "Run AI Triage" demo)
+    for (subject, category, urgency, sentiment, status, assigned_to,
+         customer_email, customer_name, body) in unclassified_tickets:
+        days_ago = random.uniform(0.1, 28)
+        db.create_ticket(
+            subject=subject, body=body,
+            customer_name=customer_name, customer_email=customer_email,
+            status=status, category=category, urgency=urgency, sentiment=sentiment,
+            # Leave AI fields unset - these will be classified by "Run AI Triage"
+            ai_category=None, ai_urgency=None, ai_sentiment=None,
+            ai_confidence=None, ai_summary=None,
             assigned_to=assigned_to,
             created_at=_ago(days_ago),
         )
@@ -567,7 +631,8 @@ def seed():
 if __name__ == "__main__":
     seed()
     stats = db.get_stats()
-    print(f"✓ {stats['total']} tickets seeded")
+    unclassified = len([t for t in db.get_all_tickets() if not t.get("ai_category")])
+    print(f"✓ {stats['total']} tickets seeded ({unclassified} unclassified for AI Triage demo)")
     print(f"  Open: {stats['open']} | Deflected: {stats['deflected']} | "
           f"Resolved: {stats['resolved']} | Escalated: {stats['escalated']}")
     kb = db.get_kb_articles()
