@@ -24,18 +24,6 @@ st.markdown("""
     border-right: 1px solid #334155;
 }
 
-/* Hide Streamlit's page navigator - target the button element that shows pages */
-[data-testid="stSidebar"] button:has(+ .stSelectbox),
-[data-testid="stSidebar"] .stSelectbox:first-of-type,
-/* Alternative selectors for page navigator */
-[data-testid="stSidebar"] > div:first-child > div:nth-child(1),
-[data-testid="stSidebar"] > div:first-child > div:nth-child(1) ~ div:nth-child(1) {
-    display: none !important;
-}
-/* Hide all content before the markdown header to ensure page selector is hidden */
-[data-testid="stSidebar"] .element-container:first-of-type {
-    display: none !important;
-}
 [data-testid="stSidebar"] * { color: #e2e8f0 !important; }
 [data-testid="stSidebar"] .stRadio label { color: #cbd5e1 !important; }
 [data-testid="stSidebar"] hr { border-color: #334155 !important; }
@@ -229,6 +217,18 @@ if "db_seeded" not in st.session_state:
     else:
         st.session_state["db_seeded"] = True
 
+
+# ── Hide page selector with CSS ────────────────────────────────────────────
+st.markdown("""
+<style>
+/* Aggressively hide Streamlit's page navigator */
+[data-testid="stSidebar"] .stSelectbox { display: none !important; }
+[data-testid="stSidebar"] > div > div:first-child > div { display: none !important; }
+/* Hide button elements that might be part of the navigator */
+[data-testid="stSidebar"] button { display: none !important; }
+/* But show our buttons later */
+</style>
+""", unsafe_allow_html=True)
 
 # ── Sidebar ───────────────────────────────────────────────────────────────────
 with st.sidebar:
