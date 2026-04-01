@@ -2,7 +2,7 @@
 AI Customer Support Triage — NovaCRM
 Main Streamlit entry point with KPI header and sidebar navigation.
 """
-# Cache buster: v1.5
+# Cache buster: v2.0
 
 import streamlit as st
 import db
