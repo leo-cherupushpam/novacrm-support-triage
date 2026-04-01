@@ -1,6 +1,6 @@
 """
 AI draft response generator for support tickets.
-Uses gpt-4o with relevant KB articles for context.
+Uses gpt-5-nano-2025-08-07 with relevant KB articles for context.
 """
 
 from __future__ import annotations
@@ -57,7 +57,7 @@ Write the draft response:"""
 
     try:
         resp = _get_client().chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5-nano-2025-08-07",
             messages=[
                 {"role": "system", "content": system},
                 {"role": "user",   "content": user},

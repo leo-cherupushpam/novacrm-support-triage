@@ -1,5 +1,5 @@
 """
-LLM-based ticket classifier using OpenAI gpt-4o-mini.
+LLM-based ticket classifier using OpenAI gpt-5-nano-2025-08-07.
 Returns category, urgency, sentiment, confidence, and a one-line summary.
 Falls back gracefully when no API key is present.
 """
@@ -54,7 +54,7 @@ def classify(subject: str, body: str) -> dict:
 
     try:
         resp = client.chat.completions.create(
-            model="gpt-4o-mini",
+            model="gpt-5-nano-2025-08-07",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": f"Subject: {subject}\n\nBody: {body}"},
