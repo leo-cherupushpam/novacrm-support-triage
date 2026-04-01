@@ -12,6 +12,7 @@ st.set_page_config(
     page_icon="🎯",
     layout="wide",
     initial_sidebar_state="expanded",
+    menu_items={"about": None},  # Hide about menu
 )
 
 # ── Global CSS ────────────────────────────────────────────────────────────────
@@ -23,8 +24,16 @@ st.markdown("""
     border-right: 1px solid #334155;
 }
 
-/* Hide Streamlit's default page selector dropdown */
-[data-testid="stSidebar"] > div:first-child > div:first-child {
+/* Hide Streamlit's page navigator - target the button element that shows pages */
+[data-testid="stSidebar"] button:has(+ .stSelectbox),
+[data-testid="stSidebar"] .stSelectbox:first-of-type,
+/* Alternative selectors for page navigator */
+[data-testid="stSidebar"] > div:first-child > div:nth-child(1),
+[data-testid="stSidebar"] > div:first-child > div:nth-child(1) ~ div:nth-child(1) {
+    display: none !important;
+}
+/* Hide all content before the markdown header to ensure page selector is hidden */
+[data-testid="stSidebar"] .element-container:first-of-type {
     display: none !important;
 }
 [data-testid="stSidebar"] * { color: #e2e8f0 !important; }
